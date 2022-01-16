@@ -8,11 +8,17 @@ import 'simplelightbox/dist/simple-lightbox.min.css';
 const refs = {
   form: document.querySelector('#search-form'),
   gallery: document.querySelector('.gallery'),
+  loadButton: document.querySelector('.load-more'),
 };
 
-refs.form.addEventListener('submit', onSearchElement);
+let pageAmount = 1;
+let inputText = '';
+let pageLength = 0;
 
-function onSearchElement(e) {
+refs.form.addEventListener('submit', onSearchElement);
+refs.loadButton.addEventListener('click', onLoadMore);
+
+async function onSearchElement(e) {
   e.preventDefault();
   clearList();
   const inputText = e.currentTarget.elements.searchQuery.value.trim();
@@ -21,26 +27,60 @@ function onSearchElement(e) {
     clearList();
     return;
   }
+  pageAmount = 1;
+  pageLength = 40;
+  const responce = await makesRequest(inputText, pageAmount);
 
-  makesRequest(inputText).then(responce => {
-    console.log(responce.hits);
-    createGalleryList(responce.hits);
-  });
+  if (responce.totalHits === 0) {
+    clearList();
+    Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+    return;
+  }
+  createGalleryList(responce.hits);
+
+  refs.loadButton.classList.remove('visually-hidden');
+  console.log(responce.hits.length);
+  console.log(responce.totalHits);
+
+  // makesRequest(inputText).then(responce => {
+  //   console.log(responce.hits);
+  //   console.log(responce.totalHits);
+  //   createGalleryList(responce.hits);
+  // });
 }
 
 function createGalleryList(elements) {
   const markup = itemsTemplate(elements);
   refs.gallery.insertAdjacentHTML('beforeend', markup);
+  lightbox();
 }
 
 function clearList() {
   refs.gallery.innerHTML = '';
 }
 
-new SimpleLightbox('.photo-card a', {
-  captionsData: `alt`,
-  captionPosition: 'bottom',
-  captionDelay: 250,
-  enableKeyboard: true,
-  doubleTapZoom: 5,
-});
+function lightbox() {
+  let lightbox = new SimpleLightbox('.gallery a', {
+    captions: false,
+    captionDelay: 250,
+    enableKeyboard: true,
+    doubleTapZoom: 5,
+  });
+  lightbox.refresh();
+}
+
+async function onLoadMore() {
+  pageAmount += 1;
+
+  const responce = await makesRequest(inputText, pageAmount);
+  createGalleryList(responce.hits);
+
+  pageLength += responce.hits.length;
+
+  if (pageLength >= responce.totalHits) {
+    Notify.failure("We're sorry, but you've reached the end of search results.");
+    refs.loadButton.classList.add('visually-hidden');
+  }
+}
+
+// сделал кнопку . надо ещё скрол

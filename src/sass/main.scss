@@ -35,7 +35,7 @@ input {
   margin-right: 0;
 }
 
-button {
+.form-button {
   border-top-right-radius: 10px;
   border-bottom-right-radius: 10px;
   padding: 10px;
@@ -64,11 +64,15 @@ img {
   margin-left: 20px;
   margin-top: 20px;
   flex-basis: calc(100% / 4 - 20px);
-  text-decoration: none;
+
   border: 1px solid #eeeeee;
   border-radius: 5px;
   box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.12), 0px 4px 4px rgba(0, 0, 0, 0.06),
     1px 4px 6px rgba(0, 0, 0, 0.16);
+}
+
+.galery-item {
+  text-decoration: none;
   color: black;
 }
 
@@ -82,4 +86,26 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+.load-more {
+  display: block;
+  margin: 0 auto;
+  background-color: #2d0d4b;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip: rect(0 0 0 0);
 }
