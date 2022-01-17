@@ -29,6 +29,8 @@ async function onSearchElement(e) {
   }
   pageAmount = 1;
   pageLength = 40;
+
+  refs.loadButton.classList.add('visually-hidden');
   const responce = await makesRequest(inputText, pageAmount);
 
   if (responce.totalHits === 0) {
@@ -74,6 +76,7 @@ async function onLoadMore() {
 
   const responce = await makesRequest(inputText, pageAmount);
   createGalleryList(responce.hits);
+  smoothScroll();
 
   pageLength += responce.hits.length;
 
@@ -83,4 +86,13 @@ async function onLoadMore() {
   }
 }
 
-// сделал кнопку . надо ещё скрол
+function smoothScroll() {
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
+}
