@@ -13,7 +13,6 @@ const refs = {
 
 let pageAmount = 1;
 let inputText = '';
-let pageLength = 0;
 
 refs.form.addEventListener('submit', onSearchElement);
 refs.loadButton.addEventListener('click', onLoadMore);
@@ -21,34 +20,50 @@ refs.loadButton.addEventListener('click', onLoadMore);
 async function onSearchElement(e) {
   e.preventDefault();
   clearList();
-  const inputText = e.currentTarget.elements.searchQuery.value.trim();
+
+  inputText = e.currentTarget.elements.searchQuery.value.trim();
 
   if (inputText === '') {
     clearList();
     return;
   }
   pageAmount = 1;
-  pageLength = 40;
 
   refs.loadButton.classList.add('visually-hidden');
-  const responce = await makesRequest(inputText, pageAmount);
 
-  if (responce.totalHits === 0) {
-    clearList();
-    Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-    return;
+  try {
+    const responce = await makesRequest(inputText, pageAmount);
+
+    if (responce.totalHits === 0) {
+      clearList();
+      Notify.failure('Sorry, there are no images matching your search query. Please try again.');
+      return;
+    }
+    createGalleryList(responce.hits);
+
+    refs.loadButton.classList.remove('visually-hidden');
+  } catch (error) {
+    console.log(error);
   }
-  createGalleryList(responce.hits);
+}
 
-  refs.loadButton.classList.remove('visually-hidden');
-  console.log(responce.hits.length);
-  console.log(responce.totalHits);
+async function onLoadMore() {
+  try {
+    pageAmount += 1;
 
-  // makesRequest(inputText).then(responce => {
-  //   console.log(responce.hits);
-  //   console.log(responce.totalHits);
-  //   createGalleryList(responce.hits);
-  // });
+    const responce = await makesRequest(inputText, pageAmount);
+    createGalleryList(responce.hits);
+    smoothScroll();
+
+    pageLength += responce.hits.length;
+
+    if (pageLength >= responce.totalHits) {
+      Notify.failure("We're sorry, but you've reached the end of search results.");
+      refs.loadButton.classList.add('visually-hidden');
+    }
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 function createGalleryList(elements) {
@@ -69,21 +84,6 @@ function lightbox() {
     doubleTapZoom: 5,
   });
   lightbox.refresh();
-}
-
-async function onLoadMore() {
-  pageAmount += 1;
-
-  const responce = await makesRequest(inputText, pageAmount);
-  createGalleryList(responce.hits);
-  smoothScroll();
-
-  pageLength += responce.hits.length;
-
-  if (pageLength >= responce.totalHits) {
-    Notify.failure("We're sorry, but you've reached the end of search results.");
-    refs.loadButton.classList.add('visually-hidden');
-  }
 }
 
 function smoothScroll() {
