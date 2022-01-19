@@ -45,7 +45,9 @@ async function onSearchElement(e) {
     Notify.success(`Hooray! We found ${responce.totalHits} images.`);
     createGalleryList(responce.hits);
 
-    refs.loadButton.classList.remove('visually-hidden');
+    if (responce.totalHits > 40) {
+      refs.loadButton.classList.remove('visually-hidden');
+    }
   } catch (error) {
     console.log(error);
   }
