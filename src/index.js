@@ -26,6 +26,7 @@ async function onSearchElement(e) {
 
   if (inputText === '') {
     clearList();
+    refs.loadButton.classList.add('visually-hidden');
     return;
   }
   pageAmount = 1;
@@ -38,7 +39,7 @@ async function onSearchElement(e) {
     if (responce.totalHits === 0) {
       clearList();
       Notify.failure('Sorry, there are no images matching your search query. Please try again.');
-
+      refs.loadButton.classList.add('visually-hidden');
       return;
     }
 
